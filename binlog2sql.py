@@ -119,7 +119,7 @@ class Binlog2sql(object):
                 if isinstance(binlog_event, QueryEvent) and binlog_event.query == 'BEGIN':
                     e_start_pos = last_pos
 
-                if not self.is_in_gtid_interval(local_gtid):
+                if self.gtid_interval and not self.is_in_gtid_interval(local_gtid):
                     continue
 
                 if isinstance(binlog_event, QueryEvent) and not self.only_dml:
