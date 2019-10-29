@@ -99,7 +99,7 @@ def parse_args():
     parser.add_argument('--back-interval', dest='back_interval', type=float, default=1.0,
                         help="Sleep time between chunks of 1000 rollback sql. set it to 0 if do not need sleep")
     parser.add_argument('--gtid-interval', dest='gtid_interval', type=str,
-                        help="GTID Interval. format uuid:1 or uuid:1,uuid:2,uuid:3", default='')
+                        help="GTID Interval. format uuid:1 or uuid:1,uuid:2,uuid:3 or uuid:1-10", default='')
 
     return parser
 
