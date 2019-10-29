@@ -28,6 +28,7 @@ class Binlog2sql(object):
         self.start_pos = start_pos if start_pos else 4  # use binlog v4
         self.end_file = end_file if end_file else start_file
         self.end_pos = end_pos
+        self.gtid_total = []
         if start_time:
             self.start_time = datetime.datetime.strptime(start_time, "%Y-%m-%d %H:%M:%S")
         else:
@@ -38,6 +39,14 @@ class Binlog2sql(object):
             self.stop_time = datetime.datetime.strptime('2999-12-31 00:00:00', "%Y-%m-%d %H:%M:%S")
         if gtid_interval:
             self.gtid_interval = gtid_interval.split(',')
+            for gtid in self.gtid_interval:
+                if '-' in gtid.split(':')[1]:
+                    min_gtid = int(gtid.split(':')[1].split('-')[0])
+                    max_gtid = int(gtid.split(':')[1].split('-')[1])
+                    for gtid_i in range(min_gtid, max_gtid + 1):
+                        self.gtid_total.append(str(gtid.split(':')[0]) + ':' + str(gtid_i))
+                else:
+                    self.gtid_total.append(gtid)
         else:
             self.gtid_interval = ''
         self.only_schemas = only_schemas if only_schemas else None
@@ -66,16 +75,7 @@ class Binlog2sql(object):
                 raise ValueError('missing server_id in %s:%s' % (self.conn_setting['host'], self.conn_setting['port']))
 
     def is_in_gtid_interval(self, isgtid):
-        gtid_total = []
-        for gtid in self.gtid_interval:
-            if '-' in gtid.split(':')[1]:
-                min_gtid = int(gtid.split(':')[1].split('-')[0])
-                max_gtid = int(gtid.split(':')[1].split('-')[1])
-                for gtid_i in range(min_gtid, max_gtid + 1):
-                    gtid_total.append(str(gtid.split(':')[0]) + str(gtid_i))
-            else:
-                gtid_total.append(gtid)
-        if isgtid in gtid_total:
+        if isgtid in self.gtid_total:
             return True
         else:
             return False
